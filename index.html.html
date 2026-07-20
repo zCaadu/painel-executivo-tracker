@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Executivo — Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10141a;
+    --panel: #1a212b;
+    --panel-hover: #212a36;
+    --line: #2a3341;
+    --text: #eceff3;
+    --text-dim: #8b96a5;
+    --text-faint: #5b6472;
+    --amber: #e8963c;
+    --teal: #33c481;
+    --teal-dark: #1f7a45;
+    --teal-tint: #12321f;
+    --red: #e0685a;
+    --violet: #a48ce0;
+    --blue: #5b9bef;
+    --radius: 10px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 36px 24px 80px;
+  }
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+  .wrap{ max-width: 880px; margin: 0 auto; }
+
+  /* ---------- brand header ---------- */
+  .brand-row{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap: 20px; margin-bottom: 28px;
+  }
+  .brand-row img{
+    height: 46px; width:auto; display:block;
+  }
+  .brand-fallback{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; color:var(--teal);
+    letter-spacing: -0.02em;
+  }
+  .ring-wrap{ position:relative; width:76px; height:76px; flex-shrink:0; }
+  .ring-wrap svg{ width:76px; height:76px; transform: rotate(-90deg); }
+  .ring-pct{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:15px; color: var(--teal);
+  }
+
+  /* ---------- header / hero ---------- */
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 6px;
+  }
+  h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 27px;
+    font-weight: 600;
+    margin: 0 0 22px;
+    letter-spacing: -0.01em;
+    color: var(--teal);
+  }
+  .hero{
+    display:flex;
+    align-items:flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .hero-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 44px;
+    font-weight: 600;
+    color: var(--teal);
+    line-height:1;
+  }
+  .hero-sub{
+    color: var(--text-dim);
+    font-size: 14px;
+    padding-bottom: 6px;
+  }
+  .rail-bar{
+    position: relative;
+    height: 10px;
+    border-radius: 6px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .rail-fill{
+    position:absolute; inset:0 auto 0 0;
+    background: linear-gradient(90deg, var(--teal), #7ee8b5);
+    border-radius: 6px;
+    transition: width .35s ease;
+  }
+
+  /* ---------- alert console ---------- */
+  .alerts{
+    display:flex; flex-direction:column; gap:8px;
+    margin-bottom: 28px;
+  }
+  .alert-box{
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13.5px;
+    display:flex; align-items:flex-start; gap:10px;
+    border: 1px solid;
+  }
+  .alert-box.overdue{ background: rgba(224,104,90,0.12); border-color: rgba(224,104,90,0.4); }
+  .alert-box.soon{ background: rgba(232,150,60,0.12); border-color: rgba(232,150,60,0.4); }
+  .alert-box .dot{ margin-top:5px; width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .alert-box.overdue .dot{ background: var(--red); }
+  .alert-box.soon .dot{ background: var(--amber); }
+  .alert-box b{ font-weight:600; }
+  .alert-box .items{ color: var(--text-dim); margin-top:2px; }
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  button{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    transition: background .15s, border-color .15s;
+  }
+  button:hover{ background: var(--panel-hover); border-color: #3a4556; }
+  button.primary{ background: var(--teal); border-color: var(--teal); color:#0d1712; font-weight:600; }
+  button.primary:hover{ filter: brightness(1.08); }
+  button.ghost{ background: transparent; }
+  button.on{ background: rgba(51,196,129,0.15); border-color: var(--teal); color: var(--teal); }
+  .spacer{ flex:1; }
+  label.check-inline{
+    display:flex; align-items:center; gap:7px;
+    font-size: 13px; color: var(--text-dim); cursor:pointer;
+    user-select:none;
+  }
+
+  /* ---------- add task form ---------- */
+  .form-panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 30px;
+    display: none;
+    
+  }
+  .form-panel.open{ display:block; }
+  .form-panel h3{ margin: 0 0 14px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); font-weight:600; }
+  .form-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .form-grid .full{ grid-column: 1 / -1; }
+  .form-grid label{ font-size:12px; color: var(--text-faint); display:block; margin-bottom:4px; }
+  .form-grid input, .form-grid select{
+    width:100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+  }
+  .form-grid input:focus, .form-grid select:focus{ outline: 2px solid var(--teal); outline-offset:1px; }
+  .form-actions{ margin-top:14px; display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ---------- pipeline / phase list ---------- */
+  .pipeline{
+    position: relative;
+    padding-left: 26px;
+  }
+  .pipeline::before{
+    content:"";
+    position:absolute; left:5px; top:8px; bottom:8px; width:2px;
+    background: var(--line);
+  }
+  .phase{
+    position: relative;
+    margin-bottom: 22px;
+  }
+  .phase-node{
+    position:absolute; left:-26px; top:2px;
+    width:12px; height:12px; border-radius:50%;
+    background: var(--panel); border:2px solid var(--text-faint);
+  }
+  .phase-node.done{ background: var(--teal); border-color: var(--teal); }
+  .phase-node.partial{ background: var(--amber); border-color: var(--amber); }
+  .phase-head{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .phase-head h2{ font-family:'Poppins',sans-serif; font-size:15.5px; font-weight:600; margin:0; color: var(--teal); }
+  .phase-head .count{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-faint); }
+  .task-list{ display:flex; flex-direction:column; gap:6px; }
+
+  .task{
+    display:flex; align-items:center; gap:12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    
+  }
+  .task.done{ opacity:.55; }
+  .task.overdue-mark{ border-color: rgba(224,104,90,0.5); }
+  .task.soon-mark{ border-color: rgba(232,150,60,0.5); }
+
+  .chk{
+    width:18px; height:18px; flex-shrink:0;
+    border-radius:5px; border:1.5px solid var(--text-faint);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; background: var(--bg);
+  }
+  .chk.checked{ background: var(--teal); border-color: var(--teal); }
+  .chk svg{ width:11px; height:11px; display:none; }
+  .chk.checked svg{ display:block; }
+
+  .task-main{ flex:1; min-width:0; }
+  .task-name{ font-size:14px; }
+  .task.done .task-name{ text-decoration: line-through; }
+  .task-meta{
+    display:flex; gap:10px; flex-wrap:wrap;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; color:var(--text-faint);
+    margin-top:3px;
+  }
+  .pred-badge{
+    background: var(--bg); border:1px solid var(--line); border-radius:4px;
+    padding: 1px 5px;
+  }
+  .tags{ display:flex; gap:6px; flex-shrink:0; }
+  .tag{
+    font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px;
+    white-space:nowrap;
+  }
+  .tag.Cadu{ background: rgba(51,196,129,.15); color: var(--teal); }
+  .tag.Tales{ background: rgba(164,140,224,.15); color: var(--violet); }
+  .tag.KeyUser{ background: rgba(232,150,60,.15); color: var(--amber); }
+  .tag.default{ background: rgba(139,150,165,.15); color: var(--text-dim); }
+
+  .del-btn{
+    flex-shrink:0; width:24px; height:24px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--text-faint); background:transparent; border:none; cursor:pointer;
+    font-size: 16px; line-height:1;
+  }
+  .del-btn:hover{ color: var(--red); background: rgba(224,104,90,.12); }
+
+  footer{
+    margin-top: 40px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--text-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+  .empty{
+    color: var(--text-faint); font-size:13px; padding: 10px 2px;
+  }
+
+  @media (max-width: 560px){
+    .form-grid{ grid-template-columns: 1fr; }
+    .hero-num{ font-size: 34px; }
+    .task{ flex-wrap:wrap; }
+    .tags{ order:3; width:100%; margin-left:30px; margin-top:4px; }
+    .brand-row img{ height: 34px; }
+    .ring-wrap{ width:56px; height:56px; }
+    .ring-wrap svg{ width:56px; height:56px; }
+    .ring-pct{ font-size:12px; }
+  }
+
+  :focus-visible{ outline: 2px solid var(--teal); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand-row">
+    <img src="https://brazilianrenderers.com/br/wp-content/uploads/2020/04/SSA.png" alt="SSA"
+         onerror="this.style.display='none'; document.getElementById('brandFallback').style.display='block';">
+    <span class="brand-fallback" id="brandFallback" style="display:none;">ssa</span>
+
+    <div class="ring-wrap">
+      <svg viewBox="0 0 76 76">
+        <circle cx="38" cy="38" r="32" fill="none" stroke="#2a3341" stroke-width="7"/>
+        <circle id="ringFill" cx="38" cy="38" r="32" fill="none" stroke="#33c481" stroke-width="7"
+                stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06"
+                style="transition: stroke-dashoffset .4s ease;"/>
+      </svg>
+      <div class="ring-pct" id="ringPct">0%</div>
+    </div>
+  </div>
+
+  <p class="eyebrow">Cronograma · Jul&ndash;Set 2026</p>
+  <h1>Painel Executivo — Tracker</h1>
+
+  <div class="hero">
+    <div class="hero-num" id="heroNum">0/0</div>
+    <div class="hero-sub" id="heroSub">carregando...</div>
+  </div>
+  <div class="rail-bar"><div class="rail-fill" id="railFill" style="width:0%"></div></div>
+
+  <div class="alerts" id="alerts"></div>
+
+  <div class="controls">
+    <button id="btnAdd" class="primary">+ Nova tarefa</button>
+    <button id="btnNotify" class="ghost">Ativar alertas do navegador</button>
+    <div class="spacer"></div>
+    <label class="check-inline">
+      <input type="checkbox" id="hideDone" style="accent-color:#33c481">
+      Ocultar concluídas
+    </label>
+  </div>
+
+  <div class="form-panel" id="formPanel">
+    <h3>Nova tarefa</h3>
+    <div class="form-grid">
+      <div class="full">
+        <label for="fNome">Nome da tarefa</label>
+        <input type="text" id="fNome" placeholder="Ex.: Ajuste de layout do dashboard">
+      </div>
+      <div>
+        <label for="fFase">Fase</label>
+        <select id="fFase"></select>
+      </div>
+      <div>
+        <label for="fResp">Responsável</label>
+        <input type="text" id="fResp" placeholder="Ex.: Cadu">
+      </div>
+      <div>
+        <label for="fInicio">Início</label>
+        <input type="date" id="fInicio">
+      </div>
+      <div>
+        <label for="fTermino">Término</label>
+        <input type="date" id="fTermino">
+      </div>
+      <div>
+        <label for="fDuracao">Duração</label>
+        <input type="text" id="fDuracao" placeholder="Ex.: 4 hrs">
+      </div>
+      <div>
+        <label for="fPred">Predecessoras (opcional)</label>
+        <input type="text" id="fPred" placeholder="Ex.: 214">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="btnCancel" class="ghost">Cancelar</button>
+      <button id="btnSave" class="primary">Salvar tarefa</button>
+    </div>
+  </div>
+
+  <div class="pipeline" id="pipeline"></div>
+
+  <footer>
+    <span id="saveStatus">—</span>
+    <span>Alertas funcionam enquanto esta aba estiver aberta no navegador.</span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+
+  const STORAGE_KEY = "painel-executivo-tarefas-v1";
+
+  const FASES_ORDEM = [
+    "Preparação","Receita","EBIT","EBIT – Indicadores de Apoio",
+    "Frete Marítimo / Ton","Frete Marítimo / Ton – Indicadores de Apoio",
+    "Integração da camada Gold final","Homologação com o key user","Encerramento"
+  ];
+
+  const SEED = [
+    {fase:"Preparação", nome:"Geração dos dados mockados a partir do modelo da camada Gold", duracao:"4 hrs", pred:"168", inicio:"2026-07-24", termino:"2026-07-24", responsavel:"Cadu"},
+    {fase:"Receita", nome:"Desenvolvimento do cenário", duracao:"16 hrs", pred:"206", inicio:"2026-07-24", termino:"2026-07-28", responsavel:"Cadu"},
+    {fase:"Receita", nome:"Validação com o key user", duracao:"4 hrs", pred:"208", inicio:"2026-07-28", termino:"2026-07-28", responsavel:"Cadu"},
+    {fase:"EBIT", nome:"Desenvolvimento do cenário", duracao:"16 hrs", pred:"207", inicio:"2026-07-29", termino:"2026-07-30", responsavel:"Cadu"},
+    {fase:"EBIT", nome:"Validação com o key user", duracao:"4 hrs", pred:"211", inicio:"2026-07-31", termino:"2026-07-31", responsavel:"Cadu"},
+    {fase:"EBIT – Indicadores de Apoio", nome:"Transferência de conhecimento do Tales", duracao:"2 hrs", pred:"210", inicio:"2026-07-31", termino:"2026-07-31", responsavel:"Cadu"},
+    {fase:"EBIT – Indicadores de Apoio", nome:"Criação do parâmetro dos indicadores de apoio", duracao:"2 hrs", pred:"214", inicio:"2026-07-31", termino:"2026-07-31", responsavel:"Cadu"},
+    {fase:"EBIT – Indicadores de Apoio", nome:"Criação do HTML e do Bookmark", duracao:"12 hrs", pred:"215", inicio:"2026-08-03", termino:"2026-08-04", responsavel:"Cadu"},
+    {fase:"Frete Marítimo / Ton", nome:"Desenvolvimento do cenário", duracao:"16 hrs", pred:"213", inicio:"2026-08-04", termino:"2026-08-06", responsavel:"Cadu"},
+    {fase:"Frete Marítimo / Ton", nome:"Validação com o key user", duracao:"4 hrs", pred:"218", inicio:"2026-08-06", termino:"2026-08-06", responsavel:"Cadu"},
+    {fase:"Frete Marítimo / Ton – Indicadores de Apoio", nome:"Criação do parâmetro dos indicadores de apoio", duracao:"2 hrs", pred:"217", inicio:"2026-08-07", termino:"2026-08-07", responsavel:"Cadu"},
+    {fase:"Frete Marítimo / Ton – Indicadores de Apoio", nome:"Criação do HTML e do Bookmark", duracao:"12 hrs", pred:"221", inicio:"2026-08-07", termino:"2026-08-10", responsavel:"Cadu"},
+    {fase:"Integração da camada Gold final", nome:"Carga de dados", duracao:"2 hrs", pred:"204", inicio:"2026-08-03", termino:"2026-08-04", responsavel:"Cadu"},
+    {fase:"Integração da camada Gold final", nome:"Revisão de carregamento", duracao:"1 hr", pred:"224", inicio:"2026-08-04", termino:"2026-08-04", responsavel:"Cadu"},
+    {fase:"Integração da camada Gold final", nome:"Ajuste de medidas com erro", duracao:"1 hr", pred:"225", inicio:"2026-08-04", termino:"2026-08-04", responsavel:"Cadu"},
+    {fase:"Integração da camada Gold final", nome:"Refatoração das medidas", duracao:"8 hrs", pred:"226", inicio:"2026-08-04", termino:"2026-08-05", responsavel:"Cadu"},
+    {fase:"Integração da camada Gold final", nome:"Validação do resultado dos indicadores e correções", duracao:"24 hrs", pred:"227", inicio:"2026-08-05", termino:"2026-08-10", responsavel:"Cadu"},
+    {fase:"Integração da camada Gold final", nome:"Quality Gate da solução e correções", duracao:"16 hrs", pred:"228", inicio:"2026-08-10", termino:"2026-08-12", responsavel:"Cadu"},
+    {fase:"Homologação com o key user", nome:"Construção do plano de Testes com Key-user", duracao:"40 hrs", pred:"222", inicio:"2026-08-10", termino:"2026-08-17", responsavel:"Key User"},
+    {fase:"Homologação com o key user", nome:"Execução dos cenários de teste", duracao:"80 hrs", pred:"231;223", inicio:"2026-08-17", termino:"2026-08-31", responsavel:"Key User"},
+    {fase:"Homologação com o key user", nome:"Correção de Defeitos", duracao:"16 hrs", pred:"232", inicio:"2026-08-31", termino:"2026-09-02", responsavel:"Cadu;Tales"},
+    {fase:"Encerramento", nome:"Documentação Técnica e Funcional", duracao:"16 hrs", pred:"230", inicio:"2026-09-02", termino:"2026-09-04", responsavel:"Tales"},
+  ].map((t, i) => Object.assign({id: "seed-" + i, concluida: false}, t));
+
+  let tasks = [];
+  let storageOK = false;
+  let hideDone = false;
+  let notifyInterval = null;
+
+  const $ = (sel) => document.querySelector(sel);
+  const pipelineEl = $("#pipeline");
+  const alertsEl = $("#alerts");
+
+  function todayMidnight(){
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function parseISO(s){
+    const [y,m,d] = s.split("-").map(Number);
+    return new Date(y, m-1, d);
+  }
+  function fmtBR(s){
+    const [y,m,d] = s.split("-");
+    return d + "/" + m + "/" + y.slice(2);
+  }
+  function diffDays(dateA, dateB){
+    return Math.round((dateA - dateB) / 86400000);
+  }
+
+  function respTags(responsavel){
+    if(!responsavel) return '<span class="tag default">Sem responsável</span>';
+    return responsavel.split(";").map(r=>{
+      const cls = r === "Cadu" ? "Cadu" : r === "Tales" ? "Tales" : r === "Key User" ? "KeyUser" : "default";
+      return `<span class="tag ${cls}">${r}</span>`;
+    }).join("");
+  }
+
+  function taskStatus(t){
+    if(t.concluida) return "done";
+    const today = todayMidnight();
+    const term = parseISO(t.termino);
+    const d = diffDays(term, today);
+    if(d < 0) return "overdue";
+    if(d <= 2) return "soon";
+    return "ok";
+  }
+
+  async function persist(){
+    if(!storageOK){
+      $("#saveStatus").textContent = "Modo local — não salva entre sessões";
+      return;
+    }
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(tasks), false);
+      $("#saveStatus").textContent = "Salvo · " + new Date().toLocaleTimeString("pt-BR");
+    }catch(e){
+      $("#saveStatus").textContent = "Falha ao salvar (tentando de novo na próxima alteração)";
+    }
+  }
+
+  function render(){
+    // hero
+    const total = tasks.length;
+    const done = tasks.filter(t=>t.concluida).length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    $("#heroNum").textContent = done + "/" + total;
+    $("#heroSub").textContent = pct + "% concluído";
+    $("#railFill").style.width = pct + "%";
+    const circumference = 201.06;
+    $("#ringFill").style.strokeDashoffset = circumference * (1 - pct/100);
+    $("#ringPct").textContent = pct + "%";
+
+    // alerts
+    const overdue = tasks.filter(t=>!t.concluida && taskStatus(t)==="overdue");
+    const soon = tasks.filter(t=>!t.concluida && taskStatus(t)==="soon");
+    alertsEl.innerHTML = "";
+    if(overdue.length){
+      alertsEl.insertAdjacentHTML("beforeend", `
+        <div class="alert-box overdue">
+          <div class="dot"></div>
+          <div><b>${overdue.length} tarefa${overdue.length>1?'s':''} atrasada${overdue.length>1?'s':''}</b>
+          <div class="items">${overdue.map(t=>t.nome).join(" · ")}</div></div>
+        </div>`);
+    }
+    if(soon.length){
+      alertsEl.insertAdjacentHTML("beforeend", `
+        <div class="alert-box soon">
+          <div class="dot"></div>
+          <div><b>${soon.length} tarefa${soon.length>1?'s':''} vencendo em até 2 dias</b>
+          <div class="items">${soon.map(t=>t.nome).join(" · ")}</div></div>
+        </div>`);
+    }
+
+    // phase groups
+    pipelineEl.innerHTML = "";
+    const fasesPresentes = FASES_ORDEM.filter(f => tasks.some(t=>t.fase===f))
+      .concat([...new Set(tasks.map(t=>t.fase))].filter(f=>!FASES_ORDEM.includes(f)));
+
+    fasesPresentes.forEach(fase=>{
+      let group = tasks.filter(t=>t.fase===fase);
+      if(hideDone) group = group.filter(t=>!t.concluida);
+      if(!group.length) return;
+
+      const allDone = tasks.filter(t=>t.fase===fase).every(t=>t.concluida);
+      const anyDone = tasks.filter(t=>t.fase===fase).some(t=>t.concluida);
+      const nodeCls = allDone ? "done" : anyDone ? "partial" : "";
+      const totalFase = tasks.filter(t=>t.fase===fase).length;
+      const doneFase = tasks.filter(t=>t.fase===fase && t.concluida).length;
+
+      const phaseDiv = document.createElement("div");
+      phaseDiv.className = "phase";
+      phaseDiv.innerHTML = `
+        <div class="phase-node ${nodeCls}"></div>
+        <div class="phase-head">
+          <h2>${fase}</h2>
+          <span class="count mono">${doneFase}/${totalFase}</span>
+        </div>
+        <div class="task-list"></div>
+      `;
+      const list = phaseDiv.querySelector(".task-list");
+
+      group.forEach(t=>{
+        const status = taskStatus(t);
+        const row = document.createElement("div");
+        row.className = "task " + (t.concluida?"done ":"") + (status==="overdue"?"overdue-mark":status==="soon"?"soon-mark":"");
+        row.innerHTML = `
+          <div class="chk ${t.concluida?'checked':''}" data-id="${t.id}" role="checkbox" aria-checked="${t.concluida}" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0d1712" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="task-main">
+            <div class="task-name">${t.nome}</div>
+            <div class="task-meta">
+              <span>${fmtBR(t.inicio)} → ${fmtBR(t.termino)}</span>
+              <span>${t.duracao}</span>
+              ${t.pred ? `<span class="pred-badge">#${t.pred}</span>` : ""}
+            </div>
+          </div>
+          <div class="tags">${respTags(t.responsavel)}</div>
+          <button class="del-btn" data-id="${t.id}" title="Remover tarefa" aria-label="Remover tarefa">×</button>
+        `;
+        list.appendChild(row);
+      });
+      pipelineEl.appendChild(phaseDiv);
+    });
+
+    if(!tasks.length){
+      pipelineEl.innerHTML = '<p class="empty">Nenhuma tarefa ainda. Clique em “+ Nova tarefa” para começar.</p>';
+    }
+
+    // bind events
+    pipelineEl.querySelectorAll(".chk").forEach(el=>{
+      el.addEventListener("click", ()=>toggleTask(el.dataset.id));
+      el.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggleTask(el.dataset.id); }});
+    });
+    pipelineEl.querySelectorAll(".del-btn").forEach(el=>{
+      el.addEventListener("click", ()=>deleteTask(el.dataset.id));
+    });
+  }
+
+  function toggleTask(id){
+    const t = tasks.find(t=>t.id===id);
+    if(!t) return;
+    t.concluida = !t.concluida;
+    persist();
+    render();
+  }
+
+  function deleteTask(id){
+    if(!confirm("Remover esta tarefa da lista?")) return;
+    tasks = tasks.filter(t=>t.id!==id);
+    persist();
+    render();
+  }
+
+  function addTask(){
+    const nome = $("#fNome").value.trim();
+    const fase = $("#fFase").value;
+    const responsavel = $("#fResp").value.trim();
+    const inicio = $("#fInicio").value;
+    const termino = $("#fTermino").value || inicio;
+    const duracao = $("#fDuracao").value.trim() || "—";
+    const pred = $("#fPred").value.trim();
+
+    if(!nome || !inicio){
+      alert("Preencha ao menos o nome da tarefa e a data de início.");
+      return;
+    }
+    tasks.push({
+      id: "t-" + Date.now(),
+      fase: fase || "Encerramento",
+      nome, duracao, pred, inicio, termino, responsavel, concluida:false
+    });
+    persist();
+    render();
+    closeForm();
+  }
+
+  function openForm(){
+    $("#formPanel").classList.add("open");
+    $("#fNome").focus();
+  }
+  function closeForm(){
+    $("#formPanel").classList.remove("open");
+    ["fNome","fResp","fInicio","fTermino","fDuracao","fPred"].forEach(id=>$("#"+id).value="");
+  }
+
+  function populateFaseSelect(){
+    const sel = $("#fFase");
+    sel.innerHTML = FASES_ORDEM.map(f=>`<option value="${f}">${f}</option>`).join("");
+  }
+
+  // ---- notifications ----
+  function checkAndNotify(){
+    if(!("Notification" in window) || Notification.permission !== "granted") return;
+    const overdue = tasks.filter(t=>!t.concluida && taskStatus(t)==="overdue");
+    const soon = tasks.filter(t=>!t.concluida && taskStatus(t)==="soon");
+    if(overdue.length || soon.length){
+      const parts = [];
+      if(overdue.length) parts.push(overdue.length + " atrasada(s)");
+      if(soon.length) parts.push(soon.length + " vencendo em breve");
+      new Notification("Painel Executivo — Tracker", {
+        body: parts.join(" · "),
+      });
+    }
+  }
+  function setupNotifications(){
+    if(!("Notification" in window)){
+      alert("Seu navegador não suporta notificações.");
+      return;
+    }
+    Notification.requestPermission().then(perm=>{
+      if(perm === "granted"){
+        $("#btnNotify").textContent = "Alertas ativados";
+        $("#btnNotify").classList.add("on");
+        checkAndNotify();
+        if(notifyInterval) clearInterval(notifyInterval);
+        notifyInterval = setInterval(checkAndNotify, 30*60*1000);
+      }else{
+        alert("Permissão de notificação não concedida.");
+      }
+    });
+  }
+
+  // ---- init ----
+  async function init(){
+    populateFaseSelect();
+
+    if(window.storage){
+      try{
+        const res = await window.storage.get(STORAGE_KEY);
+        tasks = JSON.parse(res.value);
+        storageOK = true;
+      }catch(e){
+        // key doesn't exist yet -> seed it
+        tasks = JSON.parse(JSON.stringify(SEED));
+        storageOK = true;
+        try{ await window.storage.set(STORAGE_KEY, JSON.stringify(tasks), false); }catch(e2){}
+      }
+    }else{
+      tasks = JSON.parse(JSON.stringify(SEED));
+      storageOK = false;
+      $("#saveStatus").textContent = "Modo local — abra pelo Claude para salvar entre sessões";
+    }
+
+    render();
+
+    if("Notification" in window && Notification.permission === "granted"){
+      $("#btnNotify").textContent = "Alertas ativados";
+      $("#btnNotify").classList.add("on");
+      checkAndNotify();
+      notifyInterval = setInterval(checkAndNotify, 30*60*1000);
+    }
+  }
+
+  $("#btnAdd").addEventListener("click", openForm);
+  $("#btnCancel").addEventListener("click", closeForm);
+  $("#btnSave").addEventListener("click", addTask);
+  $("#btnNotify").addEventListener("click", setupNotifications);
+  $("#hideDone").addEventListener("change", (e)=>{ hideDone = e.target.checked; render(); });
+
+  init();
+})();
+</script>
+</body>
+</html>
